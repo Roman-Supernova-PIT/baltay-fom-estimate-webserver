@@ -4,11 +4,11 @@ import flask
 import json
 import pathlib
 import subprocess
-
-workdir = pathlib.Path( __name__ ).resolve().parent
-# sys.path.append( workdir )
 import prism
 
+workdir = pathlib.Path( __name__ ).resolve().parent
+
+# "app" is the thing we give to gunicorn
 app = flask.Flask( __name__, instance_relative_config=True )
 app.logger.setLevel( logging.INFO )
 
@@ -60,13 +60,3 @@ def calculate( logger=logging.getLogger("main") ):
         snoutput = ifp.read()
 
     return { 'status': 'ok', 'text': snoutput }
-
-
-# def create_app():
-
-# app.add_url_rule( "/", view_func=mainpage )
-# app.add_url_rule( "/calculate", view_func=lambda: calculate( logger=app.logger ) )
-
-# return app
-
-
