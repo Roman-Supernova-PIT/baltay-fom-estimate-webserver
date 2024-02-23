@@ -3,32 +3,32 @@ import math
 
 def prism( inparams ):
 
-    params = {'length1': 1.9,
+    params = {'length1': 1.9,   # Number of years of survey
               'length2': 1.9,
               'length3': 1.9,
-              'sqdegim1': 19.04,
+              'sqdegim1': 19.04,  # Square Degrees of imaging survey
               'sqdegim2': 4.20,
               'sqdegim3': 0.0,
-              'tfixim1': 115.0,
-              'tfixim2': 450.0,
+              'tfixim1': 115.0,   # Exposure Time in seconds of imaging survey
+              'tfixim2': 100., # 450.0,
               'tfixim3': 0,
-              'z1': 2.0,
+              'z1': 2.0,      # Redshift limit -- what does this mean?  Complete?
               'z2': 2.0,
               'z3': 0.0,
-              'nlim': 20,
-              'eff': 0.9,
-              'constsysim': 0.015,
-              'divim': 1.8,
-              'stnim': 10.0,
-              'sqdegspec1': 3.36,
+              'nlim': 20,     # Number of redshift bins from snflux ; don't change this!
+              'eff': 0.9,     # Efficiency of... WHAT?
+              'constsysim': 0.015,  # Systematic error at redshift given by divim
+              'divim': 1.8,         # 1+z of where sys error is constsysim ; scaled by (1+z)/divim
+              'stnim': 10.0,        # S/N (of what? PSF? 1FWHM radius?) for imaging
+              'sqdegspec1': 3.36,   # Square degrees of spectroscopic survey
               'sqdegspec2': 1.12,
               'sqdegspec3': 0.0,
-              'tfixspec1': 900.0,
+              'tfixspec1': 900.0,   # Exposure time of spectroscopic survey
               'tfixspec2': 3600.0,
               'tfixspec3': 0,
-              'constsysspec': 0.01,
+              'constsysspec': 0.01,  # spectroscopic equivalent of constsysim and divim
               'divspec': 1.8,
-              'stnspec': 20.0
+              'stnspec': 20.0        # S/N of what? for spectra (one resolution element?  20 is a lot!)
               }
     params.update( inparams )
 
@@ -464,6 +464,10 @@ def prism( inparams ):
             sigint=0.11+0.033*z
             siglens=0.07*z
             sigstat[i]=math.sqrt(sigmeas**2+sigint**2+siglens**2)
+            if sneim[i] < 0:
+                raise Exception( f"sneim is {sneim[i]:.02f} in bin {i}"
+                                 f"(redshift {i*0.1+0.05:.02f}); probably an spectroscopic survey"
+                                 f"is too deep compared to its imaging counterpart" )
             if sneim[i] == 0:
                 statsig = float('inf')
             else:
