@@ -3,8 +3,9 @@ import logging
 import flask
 import json
 import pathlib
-import subprocess
+import snflux
 import prism
+import snvar
 
 workdir = pathlib.Path( __name__ ).resolve().parent
 
@@ -21,18 +22,11 @@ def mainpage():
 def calculate( logger=logging.getLogger("main") ):
     response = {}
 
-    failed = False
     try:
-        result = subprocess.run( workdir / "snflux", capture_output=True )
+        snflux.snflux( flask.request.json )
     except Exception as ex:
-        failed = True
-
-    if failed or ( result.returncode != 0 ):
-        logger.error( f"snflux returned {result.returncode}\n"
-                      f"STDOUT\n------\n{result.stdout}\n"
-                      f"STDERR\n------\n{result.stderr}" )
-        response = { 'status': 'error', 'error': 'Error running snflux' };
-        return response
+        logger.exception( f"Failed to run snflux" )
+        return { 'status': 'error', 'error': f'Failed to run snflux: {str(ex)}' }
 
     try:
         prism.prism( flask.request.json )
@@ -43,18 +37,11 @@ def calculate( logger=logging.getLogger("main") ):
     sninvar = pathlib.Path( workdir / "sninvarim.txt" )
     sninvar.replace( workdir / "sninvar.txt" )
 
-    failed = False
     try:
-        result = subprocess.run( workdir / "snvar", capture_output=True )
+        snvar.snvar( flask.request.json )
     except Exception as ex:
-        failed = True
-
-    if failed or ( result.returncode != 0 ):
-        logger.error( f"snvar returned {result.returncode}\n"
-                      f"STDOUT\n------\n{result.stdout}\n"
-                      f"STDERR\n------\n{result.stderr}\n" )
-        response = { 'status': 'error', 'error': 'Error running snvar' }
-        return response
+        logger.exception( f"Failed to run snvar" )
+        return { 'status': 'error', 'error': f'Failed to run snvar: {str(ex)}' }
 
     with open( workdir / "snoutput.txt", "r" ) as ifp:
         snoutput = ifp.read()
