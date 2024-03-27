@@ -81,7 +81,7 @@ def ddwafn(x, u, v, om, q):
 
 def snvar( inparams ):
 
-    params = {}
+    params = {} # All parameters are passed in via input file from prism but I'll keep this for convenience just in case
     params.update( inparams )
 
     try:

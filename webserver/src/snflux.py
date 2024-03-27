@@ -11,26 +11,35 @@ def zint(z, omegam, omegak, omegade, w):
     return zint
 
 def snflux( inparams ):
-
-    params = {}
+        # Instrument
+    params = {'telarea': 0.78*(math.pi*(120.0**2)),
+              'thruput': 0.7, # thruput includes detector quantum efficiency
+        # Astronomy
+              'Mb' : -19.7, # SN B band absolute magnitude
+        # Cosmology
+              'h0': 70,
+              'omegam' : 0.28,
+              'omegak' : 0.,
+              'omegade' : 0.72,
+              'w' : -1.
+             }
     params.update( inparams )
 
     # Set parameters
-    c = 3e5
-    h0 = 70.
-    hp = 6.67e-34
-    telarea = 0.78*(3.14*(120.0**2))
-    thruput=0.70
-    # thruput includes detector quantum efficiency
-
-    # normalize Hsiao template spectra B=0 to B=-19.7
-    anorm=0.759e8
+    c = scipy.constants.c
+    h0 = params['h0']
+    hp = scipy.constants.h
+    telarea = params['telarea']
+    thruput = params['thruput']
+    
+    Mb = params['Mb']
+    anorm = (10**(-0.4*Mb))
 
     # Set cosmology
-    omegam=0.28
-    omegak=0.0
-    omegade=0.72
-    w=-1.0
+    omegam = params['omegam']
+    omegak = params['omegak']
+    omegade = params['omegade']
+    w = params['w']
 
     try:
         # Setup output
