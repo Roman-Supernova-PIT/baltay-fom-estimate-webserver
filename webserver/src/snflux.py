@@ -26,7 +26,7 @@ def snflux( inparams ):
     params.update( inparams )
 
     # Set parameters
-    c = scipy.constants.c
+    c = scipy.constants.c/1000 # km/s for use with H0
     h0 = params['h0']
     hp = scipy.constants.h
     telarea = params['telarea']

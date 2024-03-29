@@ -14,13 +14,13 @@
 FROM docker.io/alpine:3.19.1
 
 RUN apk update \
-    && apk add python3 py3-pip libc6-compat \
+    && apk add python3 py3-pip libc6-compat py3-scipy\
     && apk cache clean \
     && rm -rf /var/cache/apk/*
 
 RUN rm /usr/lib/python3.11/EXTERNALLY-MANAGED
 
-RUN pip install gunicorn flask numpy scipy\
+RUN pip install gunicorn flask\
     && rm -rf /.cache/pip
 
 RUN mkdir /code

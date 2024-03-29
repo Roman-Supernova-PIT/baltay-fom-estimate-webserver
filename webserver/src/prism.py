@@ -10,7 +10,7 @@ def prism( inparams ):
               'sqdegim2': 4.20,
               'sqdegim3': 0.0,
               'tfixim1': 115.0,   # Exposure Time in seconds of imaging survey
-              'tfixim2': 100., # 450.0,
+              'tfixim2': 450.,
               'tfixim3': 0,
               'sqdegspec1': 3.36,   # Square degrees of spectroscopic survey
               'sqdegspec2': 1.12,
@@ -68,7 +68,7 @@ def prism( inparams ):
 
         # Spectroscopy
 
-        sqdegmins = params['sqdegspec1']
+        sqdegminsp = params['sqdegspec1']
         sqdegmidsp = params['sqdegspec2']
         sqdegmaxsp = params['sqdegspec3']
 
