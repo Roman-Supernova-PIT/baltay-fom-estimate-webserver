@@ -1,5 +1,6 @@
 import sys
 import math
+import numpy as np
 
 def prism( inparams ):
         # Survey
@@ -40,6 +41,7 @@ def prism( inparams ):
         f5 = open('sninvarim.txt', 'w')
         f4 = open('snfluxes.d', 'r')
         f7 = open('errout312.txt', 'w')
+        f11 = open('sninvar.txt', 'w')
 
         years=[params['length1'], params['length2'], params['length3']]
 
@@ -86,21 +88,23 @@ def prism( inparams ):
 
         # Instrument parameters
 
-        pix=14.6
         dc=0.015
         pixim=8.97
-        dcim=0.015
         zodiim=0.14
-        rnoise=5.0
-        res=100.0
-        resifu=80.0
         wifu=3.0
-        lmin=1.0
-        lmax=2.0
-        rlamb=4.0
         telarea=0.78*(math.pi*(120.0**2))
         telarea=telarea*0.70
         pixarea=0.11**2
+
+        # Old parameters, now unused
+        # pix = 14.6
+        # dcim = 0.015
+        # rnoise=5.0
+        # res=100.0
+        # resifu=80.0
+        # lmin=1.0
+        # lmax=2.0
+        # rlamb=4.0
 
         rifu = [0,0,0,0,
             580.0,
@@ -189,7 +193,7 @@ def prism( inparams ):
 
 
         snesp=[0.0]*nlim
-        nsnesp=[0.0]*nlim
+        # nsnesp=[0.0]*nlim
         snmin=[0.0]*nlim
         snmid=[0.0]*nlim
         snmax=[0.0]*nlim
@@ -293,6 +297,7 @@ def prism( inparams ):
         sigsys = [0.]*nlim
         sigout = [0.]*nlim
         sigdist = [0.]*nlim
+
         for i in range(1, nlim):
             z=i*0.1+0.05
 
@@ -360,7 +365,7 @@ def prism( inparams ):
             z=i*0.1+0.05
             nsne[i]=snesp[i]
 
-        sigstat[0]=0.17
+        sigstat[0]=0.13
         sigsys[0]=0.0
 
         f3.write(f'{om}\t{nw0}\t{nwa}\n')
@@ -368,6 +373,14 @@ def prism( inparams ):
         f3.write(f'{nsamestat}\t{nsamesys}\t{nyescmb}\n')
         f3.write('\t'.join([f'{x:.4f}' for x in sigstat])+'\n')
         f3.write('\t'.join([f'{x:.4f}' for x in sigsys])+'\n')
+
+        # Store errors for combining surveys
+
+        nsnesp1=nsne.copy()
+        sigstatsp=[x/np.sqrt(y) for x, y in zip(sigstat,snesp)]
+        sigsyssp=sigsys.copy()
+        sigtotsp=[math.sqrt(x**2+y**2) for x, y in zip(sigstatsp, sigsyssp)]
+        
 
         # Imaging Survey.  Xxxxxxxxxxxxxxxxxxxxxx
 
@@ -529,7 +542,7 @@ def prism( inparams ):
             z=i*0.1+0.05
             nsne[i]=sneim[i]
 
-        sigstat[0]=0.17
+        sigstat[0]=0.13
         sigsys[0]=0.0
 
         f5.write(f'{om}\t{nw0}\t{nwa}\n')
@@ -538,11 +551,74 @@ def prism( inparams ):
         f5.write('\t'.join([f'{x:.4f}' for x in sigstat])+'\n')
         f5.write('\t'.join([f'{x:.4f}' for x in sigsys])+'\n')
 
+        # Store errors for combining surveys
+
+        nsneim1=nsne.copy()
+        sigstatim=[x/np.sqrt(y) for x, y in zip(sigstat,sneim)]
+        sigsysim=sigsys.copy()
+        sigtotim=[math.sqrt(x**2 + y**2) for x, y in zip(sigstatim,sigsysim)]
+
+        # Combine spectroscopic and imaging surveys
+
+        f2.write(f'\nThe combined spectroscopic and imaging survey\n')
+        f2.write(f'\nz,nlow,nmid,nhigh,ntot,staterr,sigstat,sigsys,sigtotal\n')
+
+        nsnecomb = [x + y for x, y in zip(nsnesp1, nsneim1)]
+        snecomb = nsnecomb.copy()
+        errsum = [1/x**2 + 1/y**2 for x, y in zip(sigstatsp, sigstatim)]
+        sigstatcomb = 1/np.sqrt(errsum)
+        sigstatmulti = sigstatcomb*np.sqrt(snecomb)
+        
+        # Calculate systematic errors a la Padmanabhan formulas
+
+        sigtotcomb = [0]*nlim
+        sigsyscomb = [0]*nlim
+        for i in range(nlim):
+
+            r=(sigsysim[i]*sigsyssp[i])/(sigtotim[i]*sigtotsp[i])
+            w1=(sigtotsp[i]**2-r*sigtotim[i]*sigtotsp[i])
+            w2=(sigtotim[i]**2+sigtotsp[i]**2-2.0*r*sigtotim[i]*sigtotsp[i])
+            w=w1/w2
+            s1=(w**2)*sigtotim[i]**2+((1.0-w)**2)*sigtotsp[i]**2
+            s2=2*w*(1.0-w)*r*sigtotim[i]*sigtotsp[i]
+            sq=s1+s2
+            sigtotcomb[i]=math.sqrt(sq)
+
+            sigsyscomb[i]=math.sqrt(sigtotcomb[i]**2-sigstatcomb[i]**2)
+
+     
+            z=i*0.1+0.05
+
+            nmin=0
+            nmid=0
+            nmax=0
+            nsnecomb[0]=800
+            ntotal=nsnecomb[i]
+     
+
+            sigstatmulti[19]=0.235
+            sigsyscomb[15]=sigsysim[15]
+            sigsyscomb[16]=sigsysim[16]
+            sigsyscomb[17]=sigsysim[17]
+            sigsyscomb[18]=sigsysim[18]
+            sigsyscomb[19]=0.025
+      
+
+            f2.write(f'{z}\t{nmin}\t{nmid}\t{nmax}\t{ntotal}\t{sigstatmulti[i]}\t{sigstatcomb[i]}\t{sigsyscomb[i]}\t{sigtotcomb[i]}')
+    
+
+        f11.write(f'{om}\t{nw0}\t{nwa}\n')
+        f11.write('\t'.join([f'{int(x)}' for x in nsnecomb])+'\n')
+        f11.write(f'{nsamestat}\t{nsamesys}\t{nyescmb}\n')
+        f11.write('\t'.join([f'{x:.4f}' for x in sigstatmulti])+'\n')
+        f11.write('\t'.join([f'{x:.4f}' for x in sigsyscomb])+'\n')
+
         f2.close()
         f3.close()
         f5.close()
         f4.close()
         f7.close()
+        f11.close()
 
     except Exception as ex:
         sys.stderr.write( f"Exception running prism; params is {params}\n" )
