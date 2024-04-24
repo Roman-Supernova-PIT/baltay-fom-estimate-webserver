@@ -4,7 +4,7 @@ Quickly estimate a figure of merit for given survey parameters.
 
 ## Usage
 
-The program consists of three python scripts, which can either be run directly or using a webserver frontend. Usage for the two options is described below.
+The program consists of three python scripts, which can either be run directly (requires only python) or using a webserver frontend (requires Docker). Usage for the two options is described below.
 
 ### Webserver frontend
 
