@@ -2,7 +2,7 @@ import sys
 import math
 
 def prism( inparams ):
-
+        # Survey
     params = {'length1': 1.9,   # Number of years of survey
               'length2': 1.9,
               'length3': 1.9,
@@ -10,22 +10,24 @@ def prism( inparams ):
               'sqdegim2': 4.20,
               'sqdegim3': 0.0,
               'tfixim1': 115.0,   # Exposure Time in seconds of imaging survey
-              'tfixim2': 100., # 450.0,
+              'tfixim2': 450.,
               'tfixim3': 0,
-              'z1': 2.0,      # Redshift limit -- what does this mean?  Complete?
-              'z2': 2.0,
-              'z3': 0.0,
-              'nlim': 20,     # Number of redshift bins from snflux ; don't change this!
-              'eff': 0.9,     # Efficiency of... WHAT?
-              'constsysim': 0.015,  # Systematic error at redshift given by divim
-              'divim': 1.8,         # 1+z of where sys error is constsysim ; scaled by (1+z)/divim
-              'stnim': 10.0,        # S/N (of what? PSF? 1FWHM radius?) for imaging
               'sqdegspec1': 3.36,   # Square degrees of spectroscopic survey
               'sqdegspec2': 1.12,
               'sqdegspec3': 0.0,
               'tfixspec1': 900.0,   # Exposure time of spectroscopic survey
               'tfixspec2': 3600.0,
               'tfixspec3': 0,
+              'z1': 2.0,      # Redshift limit -- what does this mean?  Complete?
+              'z2': 2.0,
+              'z3': 0.0,
+              'nlim': 20,     # Number of redshift bins from snflux ; don't change this!
+        # Instrument
+              'eff': 0.9,     # Efficiency of... WHAT?
+        # Errors
+              'constsysim': 0.015,  # Systematic error at redshift given by divim
+              'divim': 1.8,         # 1+z of where sys error is constsysim ; scaled by (1+z)/divim
+              'stnim': 10.0,        # S/N (of what? PSF? 1FWHM radius?) for imaging
               'constsysspec': 0.01,  # spectroscopic equivalent of constsysim and divim
               'divspec': 1.8,
               'stnspec': 20.0        # S/N of what? for spectra (one resolution element?  20 is a lot!)
@@ -66,15 +68,15 @@ def prism( inparams ):
 
         # Spectroscopy
 
-        sqdegminsp= params['sqdegspec1']
-        sqdegmidsp= params['sqdegspec2']
-        sqdegmaxsp= params['sqdegspec3']
+        sqdegminsp = params['sqdegspec1']
+        sqdegmidsp = params['sqdegspec2']
+        sqdegmaxsp = params['sqdegspec3']
 
-        sqdgyrminsp=sqdegminsp*years[0]
-        sqdgyrmidsp=sqdegmidsp*years[1]
-        sqdgyrmaxsp=sqdegmaxsp*years[2]
+        sqdgyrminsp = sqdegminsp*years[0]
+        sqdgyrmidsp = sqdegmidsp*years[1]
+        sqdgyrmaxsp = sqdegmaxsp*years[2]
 
-        tfixspec= [params['tfixspec1'], params['tfixspec2'], params['tfixspec3']]
+        tfixspec = [params['tfixspec1'], params['tfixspec2'], params['tfixspec3']]
 
 
         constsyssp=params['constsysspec']
@@ -96,7 +98,7 @@ def prism( inparams ):
         lmin=1.0
         lmax=2.0
         rlamb=4.0
-        telarea=0.78*(3.14*(120.0**2))
+        telarea=0.78*(math.pi*(120.0**2))
         telarea=telarea*0.70
         pixarea=0.11**2
 
