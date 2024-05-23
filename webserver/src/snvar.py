@@ -90,11 +90,11 @@ def snvar(inparams, infile='sninvar.txt', mode='w', survey='combined'):
         f3 = open('snerrout.txt', 'w')
 
         if survey=='combined':
-            f2.write('FOM calculations for combined imaging/spectroscopic survey\n\n')
+            f2.write('========== FOM calculations for combined imaging/spectroscopic survey ==========\n\n')
         elif survey=='imaging':
-            f2.write('\nFOM calculations for imaging survey only\n\n')
+            f2.write('\n========== FOM calculations for imaging survey only ==========\n\n')
         elif survey=='spec':
-            f2.write('\nFOM calculations for spectroscopic survey only\n\n')
+            f2.write('\n========== FOM calculations for spectroscopic survey only ==========\n\n')
 
         # Input line 1: matter density Omega_m, w0, wa (fiducial 0.28, -1, 0)
         om, w0, wa = [float(x) for x in f1.readline().split()]
@@ -279,6 +279,12 @@ def snvar(inparams, infile='sninvar.txt', mode='w', survey='combined'):
 
         f2.write('\nValues of w0, wa, reduced Fisher matrix F11, F12, F22\n')
         f2.write('\t'.join([str(x) for x in [w0, wa, matsm[0, 0], matsm[0, 1], matsm[1, 1]]])+'\n')
+
+        if survey=='spec' and params['detail']==1:
+            f2.write('\n========== Detailed output ==========\n\n')
+            with open('prismoutSept15.txt', 'r') as f101:
+                f2.write(f101.read())
+            
 
         f1.close()
         f2.close()

@@ -19,9 +19,12 @@ def prism( inparams ):
               'tfixspec1': 900.0,   # Exposure time of spectroscopic survey
               'tfixspec2': 3600.0,
               'tfixspec3': 0,
-              'z1': 2.0,      # Redshift limit -- what does this mean?  Complete?
+              'z1': 2.0,      # Imaging redshift limit -- what does this mean?  Complete?
               'z2': 2.0,
               'z3': 0.0,
+              'z1spec': 2.0,      # Spectroscopy redshift limit
+              'z2spec': 2.0,
+              'z3spec': 0.0,
               'nlim': 20,     # Number of redshift bins from snflux ; don't change this!
         # Instrument
               'eff': 0.9,     # Efficiency of... WHAT?
@@ -59,6 +62,10 @@ def prism( inparams ):
         zmin=params['z1']
         zmid= params['z2']
         zmax=params['z3']
+        zminspec = params['z1spec']
+        zmidspec = params['z2spec']
+        zmaxspec = params['z3spec']
+        
         nlim=params['nlim']
 
         eff=params['eff']
@@ -203,11 +210,11 @@ def prism( inparams ):
 
         for i in range(1, nlim):
             z=i*0.1+0.05
-            if z <= zmin:
+            if z <= zminspec:
                 snmin[i]=sr[i]*sqdgyrminsp*eff
-            if z <= zmid:
+            if z <= zmidspec:
                 snmid[i]=sr[i]*sqdgyrmidsp*eff
-            if z <= zmax:
+            if z <= zmaxspec:
                 snmax[i]=sr[i]*sqdgyrmaxsp*eff
 
             sntot=snmin[i]+snmid[i]+snmax[i]
@@ -589,9 +596,9 @@ def prism( inparams ):
      
             z=i*0.1+0.05
 
-            nmin=0
-            nmid=0
-            nmax=0
+            nmin=snim[0][i]+snsp[0][i]
+            nmid=snim[1][i]+snsp[1][i]
+            nmax=snim[2][i]+snsp[2][i]
             nsnecomb[0]=800
             ntotal=nsnecomb[i]
      
@@ -604,7 +611,7 @@ def prism( inparams ):
             sigsyscomb[19]=0.025
       
 
-            f2.write(f'{z}\t{nmin}\t{nmid}\t{nmax}\t{ntotal}\t{sigstatmulti[i]}\t{sigstatcomb[i]}\t{sigsyscomb[i]}\t{sigtotcomb[i]}')
+            f2.write(f'{z:.2f}\t{int(nmin)}\t{int(nmid)}\t{int(nmax)}\t{int(ntotal)}\t{sigstatmulti[i]:.4f}\t{sigstatcomb[i]:.4f}\t{sigsyscomb[i]:.4f}\t{sigtotcomb[i]:.4f}\n')
     
 
         f11.write(f'{om}\t{nw0}\t{nwa}\n')
