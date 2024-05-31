@@ -34,11 +34,8 @@ def calculate( logger=logging.getLogger("main") ):
         logger.exception( f"Failed to run prism" )
         return { 'status': 'error', 'error': f'Failed to run prism: {str(ex)}' }
 
-    sninvar = pathlib.Path( workdir / "sninvarim.txt" )
-    sninvar.replace( workdir / "sninvar.txt" )
-
     try:
-        snvar.snvar( flask.request.json )
+        snvar.snvar_combined( flask.request.json )
     except Exception as ex:
         logger.exception( f"Failed to run snvar" )
         return { 'status': 'error', 'error': f'Failed to run snvar: {str(ex)}' }

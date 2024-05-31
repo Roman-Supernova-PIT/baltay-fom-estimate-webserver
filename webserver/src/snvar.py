@@ -79,15 +79,22 @@ def ddwafn(x, u, v, om, q):
     ddwafn=ewfull*(math.log(x)-1.+1./x)/(x**3.+q/om*ewfull)**1.5
     return ddwafn
 
-def snvar( inparams ):
+def snvar(inparams, infile='sninvar.txt', mode='w', survey='combined'):
 
     params = {} # All parameters are passed in via input file from prism but I'll keep this for convenience just in case
     params.update( inparams )
 
     try:
-        f1 = open('sninvar.txt', 'r')
-        f2 = open('snoutput.txt', 'w')
+        f1 = open(infile, 'r')
+        f2 = open('snoutput.txt', mode)
         f3 = open('snerrout.txt', 'w')
+
+        if survey=='combined':
+            f2.write('========== FOM calculations for combined imaging/spectroscopic survey ==========\n\n')
+        elif survey=='imaging':
+            f2.write('\n========== FOM calculations for imaging survey only ==========\n\n')
+        elif survey=='spec':
+            f2.write('\n========== FOM calculations for spectroscopic survey only ==========\n\n')
 
         # Input line 1: matter density Omega_m, w0, wa (fiducial 0.28, -1, 0)
         om, w0, wa = [float(x) for x in f1.readline().split()]
@@ -273,6 +280,12 @@ def snvar( inparams ):
         f2.write('\nValues of w0, wa, reduced Fisher matrix F11, F12, F22\n')
         f2.write('\t'.join([str(x) for x in [w0, wa, matsm[0, 0], matsm[0, 1], matsm[1, 1]]])+'\n')
 
+        if survey=='spec' and params['detail']==1:
+            f2.write('\n========== Detailed output ==========\n\n')
+            with open('prismoutSept15.txt', 'r') as f101:
+                f2.write(f101.read())
+            
+
         f1.close()
         f2.close()
         f3.close()
@@ -281,5 +294,11 @@ def snvar( inparams ):
         sys.stderr.write( f"Exception running snvar; params is {params}\n" )
         raise
 
+def snvar_combined( inparams ):
+    snvar(inparams, infile='sninvar.txt', mode='w', survey='combined')
+    snvar(inparams, infile='sninvarim.txt', mode='a', survey='imaging')
+    snvar(inparams, infile='sninvarsp.txt', mode='a', survey='spec')
+    
+
 if __name__ == "__main__":
-    snvar( {} )
+    snvar_combined( {} )
